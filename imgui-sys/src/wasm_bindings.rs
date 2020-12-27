@@ -83,6 +83,7 @@ where
         }
     }
 }
+pub type ImU64 = cty::c_ulonglong;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ImGuiContext {
@@ -100,7 +101,9 @@ pub type ImGuiDir = cty::c_int;
 pub type ImGuiKey = cty::c_int;
 pub type ImGuiMouseButton = cty::c_int;
 pub type ImGuiMouseCursor = cty::c_int;
+pub type ImGuiSortDirection = cty::c_int;
 pub type ImGuiStyleVar = cty::c_int;
+pub type ImGuiTableBgTarget = cty::c_int;
 pub type ImDrawCornerFlags = cty::c_int;
 pub type ImDrawListFlags = cty::c_int;
 pub type ImFontAtlasFlags = cty::c_int;
@@ -109,6 +112,7 @@ pub type ImGuiButtonFlags = cty::c_int;
 pub type ImGuiColorEditFlags = cty::c_int;
 pub type ImGuiConfigFlags = cty::c_int;
 pub type ImGuiComboFlags = cty::c_int;
+pub type ImGuiDockNodeFlags = cty::c_int;
 pub type ImGuiDragDropFlags = cty::c_int;
 pub type ImGuiFocusedFlags = cty::c_int;
 pub type ImGuiHoveredFlags = cty::c_int;
@@ -119,7 +123,11 @@ pub type ImGuiSelectableFlags = cty::c_int;
 pub type ImGuiSliderFlags = cty::c_int;
 pub type ImGuiTabBarFlags = cty::c_int;
 pub type ImGuiTabItemFlags = cty::c_int;
+pub type ImGuiTableFlags = cty::c_int;
+pub type ImGuiTableColumnFlags = cty::c_int;
+pub type ImGuiTableRowFlags = cty::c_int;
 pub type ImGuiTreeNodeFlags = cty::c_int;
+pub type ImGuiViewportFlags = cty::c_int;
 pub type ImGuiWindowFlags = cty::c_int;
 pub type ImTextureID = *mut cty::c_void;
 pub type ImGuiID = cty::c_uint;
@@ -131,6 +139,7 @@ pub type ImGuiSizeCallback =
 pub type ImWchar16 = cty::c_ushort;
 pub type ImWchar = ImWchar16;
 pub type ImU8 = cty::c_uchar;
+pub type ImS16 = cty::c_short;
 pub type ImU32 = cty::c_uint;
 pub type ImDrawCallback = ::core::option::Option<
     unsafe extern "C" fn(parent_list: *const ImDrawList, cmd: *const ImDrawCmd),
@@ -234,6 +243,18 @@ impl Default for ImVector_ImFontGlyph {
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct ImVector_ImGuiPlatformMonitor {
+    pub Size: cty::c_int,
+    pub Capacity: cty::c_int,
+    pub Data: *mut ImGuiPlatformMonitor,
+}
+impl Default for ImVector_ImGuiPlatformMonitor {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct ImVector_ImGuiStoragePair {
     pub Size: cty::c_int,
     pub Capacity: cty::c_int,
@@ -252,6 +273,18 @@ pub struct ImVector_ImGuiTextRange {
     pub Data: *mut ImGuiTextRange,
 }
 impl Default for ImVector_ImGuiTextRange {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct ImVector_ImGuiViewportPtr {
+    pub Size: cty::c_int,
+    pub Capacity: cty::c_int,
+    pub Data: *mut *mut ImGuiViewport,
+}
+impl Default for ImVector_ImGuiViewportPtr {
     fn default() -> Self {
         unsafe { ::core::mem::zeroed() }
     }
@@ -375,6 +408,7 @@ pub const ImGuiWindowFlags_AlwaysUseWindowPadding: ImGuiWindowFlags_ = 65536;
 pub const ImGuiWindowFlags_NoNavInputs: ImGuiWindowFlags_ = 262144;
 pub const ImGuiWindowFlags_NoNavFocus: ImGuiWindowFlags_ = 524288;
 pub const ImGuiWindowFlags_UnsavedDocument: ImGuiWindowFlags_ = 1048576;
+pub const ImGuiWindowFlags_NoDocking: ImGuiWindowFlags_ = 2097152;
 pub const ImGuiWindowFlags_NoNav: ImGuiWindowFlags_ = 786432;
 pub const ImGuiWindowFlags_NoDecoration: ImGuiWindowFlags_ = 43;
 pub const ImGuiWindowFlags_NoInputs: ImGuiWindowFlags_ = 786944;
@@ -384,7 +418,8 @@ pub const ImGuiWindowFlags_Tooltip: ImGuiWindowFlags_ = 33554432;
 pub const ImGuiWindowFlags_Popup: ImGuiWindowFlags_ = 67108864;
 pub const ImGuiWindowFlags_Modal: ImGuiWindowFlags_ = 134217728;
 pub const ImGuiWindowFlags_ChildMenu: ImGuiWindowFlags_ = 268435456;
-pub type ImGuiWindowFlags_ = cty::c_uint;
+pub const ImGuiWindowFlags_DockNodeHost: ImGuiWindowFlags_ = 536870912;
+pub type ImGuiWindowFlags_ = cty::c_int;
 pub const ImGuiInputTextFlags_None: ImGuiInputTextFlags_ = 0;
 pub const ImGuiInputTextFlags_CharsDecimal: ImGuiInputTextFlags_ = 1;
 pub const ImGuiInputTextFlags_CharsHexadecimal: ImGuiInputTextFlags_ = 2;
@@ -408,7 +443,7 @@ pub const ImGuiInputTextFlags_CallbackResize: ImGuiInputTextFlags_ = 262144;
 pub const ImGuiInputTextFlags_CallbackEdit: ImGuiInputTextFlags_ = 524288;
 pub const ImGuiInputTextFlags_Multiline: ImGuiInputTextFlags_ = 1048576;
 pub const ImGuiInputTextFlags_NoMarkEdited: ImGuiInputTextFlags_ = 2097152;
-pub type ImGuiInputTextFlags_ = cty::c_uint;
+pub type ImGuiInputTextFlags_ = cty::c_int;
 pub const ImGuiTreeNodeFlags_None: ImGuiTreeNodeFlags_ = 0;
 pub const ImGuiTreeNodeFlags_Selected: ImGuiTreeNodeFlags_ = 1;
 pub const ImGuiTreeNodeFlags_Framed: ImGuiTreeNodeFlags_ = 2;
@@ -425,7 +460,7 @@ pub const ImGuiTreeNodeFlags_SpanAvailWidth: ImGuiTreeNodeFlags_ = 2048;
 pub const ImGuiTreeNodeFlags_SpanFullWidth: ImGuiTreeNodeFlags_ = 4096;
 pub const ImGuiTreeNodeFlags_NavLeftJumpsBackHere: ImGuiTreeNodeFlags_ = 8192;
 pub const ImGuiTreeNodeFlags_CollapsingHeader: ImGuiTreeNodeFlags_ = 26;
-pub type ImGuiTreeNodeFlags_ = cty::c_uint;
+pub type ImGuiTreeNodeFlags_ = cty::c_int;
 pub const ImGuiPopupFlags_None: ImGuiPopupFlags_ = 0;
 pub const ImGuiPopupFlags_MouseButtonLeft: ImGuiPopupFlags_ = 0;
 pub const ImGuiPopupFlags_MouseButtonRight: ImGuiPopupFlags_ = 1;
@@ -437,14 +472,14 @@ pub const ImGuiPopupFlags_NoOpenOverItems: ImGuiPopupFlags_ = 64;
 pub const ImGuiPopupFlags_AnyPopupId: ImGuiPopupFlags_ = 128;
 pub const ImGuiPopupFlags_AnyPopupLevel: ImGuiPopupFlags_ = 256;
 pub const ImGuiPopupFlags_AnyPopup: ImGuiPopupFlags_ = 384;
-pub type ImGuiPopupFlags_ = cty::c_uint;
+pub type ImGuiPopupFlags_ = cty::c_int;
 pub const ImGuiSelectableFlags_None: ImGuiSelectableFlags_ = 0;
 pub const ImGuiSelectableFlags_DontClosePopups: ImGuiSelectableFlags_ = 1;
 pub const ImGuiSelectableFlags_SpanAllColumns: ImGuiSelectableFlags_ = 2;
 pub const ImGuiSelectableFlags_AllowDoubleClick: ImGuiSelectableFlags_ = 4;
 pub const ImGuiSelectableFlags_Disabled: ImGuiSelectableFlags_ = 8;
 pub const ImGuiSelectableFlags_AllowItemOverlap: ImGuiSelectableFlags_ = 16;
-pub type ImGuiSelectableFlags_ = cty::c_uint;
+pub type ImGuiSelectableFlags_ = cty::c_int;
 pub const ImGuiComboFlags_None: ImGuiComboFlags_ = 0;
 pub const ImGuiComboFlags_PopupAlignLeft: ImGuiComboFlags_ = 1;
 pub const ImGuiComboFlags_HeightSmall: ImGuiComboFlags_ = 2;
@@ -454,7 +489,7 @@ pub const ImGuiComboFlags_HeightLargest: ImGuiComboFlags_ = 16;
 pub const ImGuiComboFlags_NoArrowButton: ImGuiComboFlags_ = 32;
 pub const ImGuiComboFlags_NoPreview: ImGuiComboFlags_ = 64;
 pub const ImGuiComboFlags_HeightMask_: ImGuiComboFlags_ = 30;
-pub type ImGuiComboFlags_ = cty::c_uint;
+pub type ImGuiComboFlags_ = cty::c_int;
 pub const ImGuiTabBarFlags_None: ImGuiTabBarFlags_ = 0;
 pub const ImGuiTabBarFlags_Reorderable: ImGuiTabBarFlags_ = 1;
 pub const ImGuiTabBarFlags_AutoSelectNewTabs: ImGuiTabBarFlags_ = 2;
@@ -466,7 +501,7 @@ pub const ImGuiTabBarFlags_FittingPolicyResizeDown: ImGuiTabBarFlags_ = 64;
 pub const ImGuiTabBarFlags_FittingPolicyScroll: ImGuiTabBarFlags_ = 128;
 pub const ImGuiTabBarFlags_FittingPolicyMask_: ImGuiTabBarFlags_ = 192;
 pub const ImGuiTabBarFlags_FittingPolicyDefault_: ImGuiTabBarFlags_ = 64;
-pub type ImGuiTabBarFlags_ = cty::c_uint;
+pub type ImGuiTabBarFlags_ = cty::c_int;
 pub const ImGuiTabItemFlags_None: ImGuiTabItemFlags_ = 0;
 pub const ImGuiTabItemFlags_UnsavedDocument: ImGuiTabItemFlags_ = 1;
 pub const ImGuiTabItemFlags_SetSelected: ImGuiTabItemFlags_ = 2;
@@ -476,13 +511,82 @@ pub const ImGuiTabItemFlags_NoTooltip: ImGuiTabItemFlags_ = 16;
 pub const ImGuiTabItemFlags_NoReorder: ImGuiTabItemFlags_ = 32;
 pub const ImGuiTabItemFlags_Leading: ImGuiTabItemFlags_ = 64;
 pub const ImGuiTabItemFlags_Trailing: ImGuiTabItemFlags_ = 128;
-pub type ImGuiTabItemFlags_ = cty::c_uint;
+pub type ImGuiTabItemFlags_ = cty::c_int;
+pub const ImGuiTableFlags_None: ImGuiTableFlags_ = 0;
+pub const ImGuiTableFlags_Resizable: ImGuiTableFlags_ = 1;
+pub const ImGuiTableFlags_Reorderable: ImGuiTableFlags_ = 2;
+pub const ImGuiTableFlags_Hideable: ImGuiTableFlags_ = 4;
+pub const ImGuiTableFlags_Sortable: ImGuiTableFlags_ = 8;
+pub const ImGuiTableFlags_NoSavedSettings: ImGuiTableFlags_ = 16;
+pub const ImGuiTableFlags_ContextMenuInBody: ImGuiTableFlags_ = 32;
+pub const ImGuiTableFlags_RowBg: ImGuiTableFlags_ = 64;
+pub const ImGuiTableFlags_BordersInnerH: ImGuiTableFlags_ = 128;
+pub const ImGuiTableFlags_BordersOuterH: ImGuiTableFlags_ = 256;
+pub const ImGuiTableFlags_BordersInnerV: ImGuiTableFlags_ = 512;
+pub const ImGuiTableFlags_BordersOuterV: ImGuiTableFlags_ = 1024;
+pub const ImGuiTableFlags_BordersH: ImGuiTableFlags_ = 384;
+pub const ImGuiTableFlags_BordersV: ImGuiTableFlags_ = 1536;
+pub const ImGuiTableFlags_BordersInner: ImGuiTableFlags_ = 640;
+pub const ImGuiTableFlags_BordersOuter: ImGuiTableFlags_ = 1280;
+pub const ImGuiTableFlags_Borders: ImGuiTableFlags_ = 1920;
+pub const ImGuiTableFlags_NoBordersInBody: ImGuiTableFlags_ = 2048;
+pub const ImGuiTableFlags_NoBordersInBodyUntilResize: ImGuiTableFlags_ = 4096;
+pub const ImGuiTableFlags_SizingPolicyFixed: ImGuiTableFlags_ = 8192;
+pub const ImGuiTableFlags_SizingPolicyStretch: ImGuiTableFlags_ = 16384;
+pub const ImGuiTableFlags_SameWidths: ImGuiTableFlags_ = 32768;
+pub const ImGuiTableFlags_NoHostExtendY: ImGuiTableFlags_ = 65536;
+pub const ImGuiTableFlags_NoKeepColumnsVisible: ImGuiTableFlags_ = 131072;
+pub const ImGuiTableFlags_PreciseWidths: ImGuiTableFlags_ = 262144;
+pub const ImGuiTableFlags_NoClip: ImGuiTableFlags_ = 524288;
+pub const ImGuiTableFlags_PadOuterX: ImGuiTableFlags_ = 1048576;
+pub const ImGuiTableFlags_NoPadOuterX: ImGuiTableFlags_ = 2097152;
+pub const ImGuiTableFlags_NoPadInnerX: ImGuiTableFlags_ = 4194304;
+pub const ImGuiTableFlags_ScrollX: ImGuiTableFlags_ = 8388608;
+pub const ImGuiTableFlags_ScrollY: ImGuiTableFlags_ = 16777216;
+pub const ImGuiTableFlags_SortMulti: ImGuiTableFlags_ = 33554432;
+pub const ImGuiTableFlags_SortTristate: ImGuiTableFlags_ = 67108864;
+pub type ImGuiTableFlags_ = cty::c_int;
+pub const ImGuiTableColumnFlags_None: ImGuiTableColumnFlags_ = 0;
+pub const ImGuiTableColumnFlags_DefaultHide: ImGuiTableColumnFlags_ = 1;
+pub const ImGuiTableColumnFlags_DefaultSort: ImGuiTableColumnFlags_ = 2;
+pub const ImGuiTableColumnFlags_WidthStretch: ImGuiTableColumnFlags_ = 4;
+pub const ImGuiTableColumnFlags_WidthFixed: ImGuiTableColumnFlags_ = 8;
+pub const ImGuiTableColumnFlags_WidthAuto: ImGuiTableColumnFlags_ = 16;
+pub const ImGuiTableColumnFlags_NoResize: ImGuiTableColumnFlags_ = 32;
+pub const ImGuiTableColumnFlags_NoReorder: ImGuiTableColumnFlags_ = 64;
+pub const ImGuiTableColumnFlags_NoHide: ImGuiTableColumnFlags_ = 128;
+pub const ImGuiTableColumnFlags_NoClip: ImGuiTableColumnFlags_ = 256;
+pub const ImGuiTableColumnFlags_NoSort: ImGuiTableColumnFlags_ = 512;
+pub const ImGuiTableColumnFlags_NoSortAscending: ImGuiTableColumnFlags_ = 1024;
+pub const ImGuiTableColumnFlags_NoSortDescending: ImGuiTableColumnFlags_ = 2048;
+pub const ImGuiTableColumnFlags_NoHeaderWidth: ImGuiTableColumnFlags_ = 4096;
+pub const ImGuiTableColumnFlags_PreferSortAscending: ImGuiTableColumnFlags_ = 8192;
+pub const ImGuiTableColumnFlags_PreferSortDescending: ImGuiTableColumnFlags_ = 16384;
+pub const ImGuiTableColumnFlags_IndentEnable: ImGuiTableColumnFlags_ = 32768;
+pub const ImGuiTableColumnFlags_IndentDisable: ImGuiTableColumnFlags_ = 65536;
+pub const ImGuiTableColumnFlags_IsEnabled: ImGuiTableColumnFlags_ = 1048576;
+pub const ImGuiTableColumnFlags_IsVisible: ImGuiTableColumnFlags_ = 2097152;
+pub const ImGuiTableColumnFlags_IsSorted: ImGuiTableColumnFlags_ = 4194304;
+pub const ImGuiTableColumnFlags_IsHovered: ImGuiTableColumnFlags_ = 8388608;
+pub const ImGuiTableColumnFlags_WidthMask_: ImGuiTableColumnFlags_ = 28;
+pub const ImGuiTableColumnFlags_IndentMask_: ImGuiTableColumnFlags_ = 98304;
+pub const ImGuiTableColumnFlags_StatusMask_: ImGuiTableColumnFlags_ = 15728640;
+pub const ImGuiTableColumnFlags_NoDirectResize_: ImGuiTableColumnFlags_ = 1073741824;
+pub type ImGuiTableColumnFlags_ = cty::c_int;
+pub const ImGuiTableRowFlags_None: ImGuiTableRowFlags_ = 0;
+pub const ImGuiTableRowFlags_Headers: ImGuiTableRowFlags_ = 1;
+pub type ImGuiTableRowFlags_ = cty::c_int;
+pub const ImGuiTableBgTarget_None: ImGuiTableBgTarget_ = 0;
+pub const ImGuiTableBgTarget_RowBg0: ImGuiTableBgTarget_ = 1;
+pub const ImGuiTableBgTarget_RowBg1: ImGuiTableBgTarget_ = 2;
+pub const ImGuiTableBgTarget_CellBg: ImGuiTableBgTarget_ = 3;
+pub type ImGuiTableBgTarget_ = cty::c_int;
 pub const ImGuiFocusedFlags_None: ImGuiFocusedFlags_ = 0;
 pub const ImGuiFocusedFlags_ChildWindows: ImGuiFocusedFlags_ = 1;
 pub const ImGuiFocusedFlags_RootWindow: ImGuiFocusedFlags_ = 2;
 pub const ImGuiFocusedFlags_AnyWindow: ImGuiFocusedFlags_ = 4;
 pub const ImGuiFocusedFlags_RootAndChildWindows: ImGuiFocusedFlags_ = 3;
-pub type ImGuiFocusedFlags_ = cty::c_uint;
+pub type ImGuiFocusedFlags_ = cty::c_int;
 pub const ImGuiHoveredFlags_None: ImGuiHoveredFlags_ = 0;
 pub const ImGuiHoveredFlags_ChildWindows: ImGuiHoveredFlags_ = 1;
 pub const ImGuiHoveredFlags_RootWindow: ImGuiHoveredFlags_ = 2;
@@ -493,7 +597,15 @@ pub const ImGuiHoveredFlags_AllowWhenOverlapped: ImGuiHoveredFlags_ = 64;
 pub const ImGuiHoveredFlags_AllowWhenDisabled: ImGuiHoveredFlags_ = 128;
 pub const ImGuiHoveredFlags_RectOnly: ImGuiHoveredFlags_ = 104;
 pub const ImGuiHoveredFlags_RootAndChildWindows: ImGuiHoveredFlags_ = 3;
-pub type ImGuiHoveredFlags_ = cty::c_uint;
+pub type ImGuiHoveredFlags_ = cty::c_int;
+pub const ImGuiDockNodeFlags_None: ImGuiDockNodeFlags_ = 0;
+pub const ImGuiDockNodeFlags_KeepAliveOnly: ImGuiDockNodeFlags_ = 1;
+pub const ImGuiDockNodeFlags_NoDockingInCentralNode: ImGuiDockNodeFlags_ = 4;
+pub const ImGuiDockNodeFlags_PassthruCentralNode: ImGuiDockNodeFlags_ = 8;
+pub const ImGuiDockNodeFlags_NoSplit: ImGuiDockNodeFlags_ = 16;
+pub const ImGuiDockNodeFlags_NoResize: ImGuiDockNodeFlags_ = 32;
+pub const ImGuiDockNodeFlags_AutoHideTabBar: ImGuiDockNodeFlags_ = 64;
+pub type ImGuiDockNodeFlags_ = cty::c_int;
 pub const ImGuiDragDropFlags_None: ImGuiDragDropFlags_ = 0;
 pub const ImGuiDragDropFlags_SourceNoPreviewTooltip: ImGuiDragDropFlags_ = 1;
 pub const ImGuiDragDropFlags_SourceNoDisableHover: ImGuiDragDropFlags_ = 2;
@@ -505,7 +617,7 @@ pub const ImGuiDragDropFlags_AcceptBeforeDelivery: ImGuiDragDropFlags_ = 1024;
 pub const ImGuiDragDropFlags_AcceptNoDrawDefaultRect: ImGuiDragDropFlags_ = 2048;
 pub const ImGuiDragDropFlags_AcceptNoPreviewTooltip: ImGuiDragDropFlags_ = 4096;
 pub const ImGuiDragDropFlags_AcceptPeekOnly: ImGuiDragDropFlags_ = 3072;
-pub type ImGuiDragDropFlags_ = cty::c_uint;
+pub type ImGuiDragDropFlags_ = cty::c_int;
 pub const ImGuiDataType_S8: ImGuiDataType_ = 0;
 pub const ImGuiDataType_U8: ImGuiDataType_ = 1;
 pub const ImGuiDataType_S16: ImGuiDataType_ = 2;
@@ -517,7 +629,7 @@ pub const ImGuiDataType_U64: ImGuiDataType_ = 7;
 pub const ImGuiDataType_Float: ImGuiDataType_ = 8;
 pub const ImGuiDataType_Double: ImGuiDataType_ = 9;
 pub const ImGuiDataType_COUNT: ImGuiDataType_ = 10;
-pub type ImGuiDataType_ = cty::c_uint;
+pub type ImGuiDataType_ = cty::c_int;
 pub const ImGuiDir_None: ImGuiDir_ = -1;
 pub const ImGuiDir_Left: ImGuiDir_ = 0;
 pub const ImGuiDir_Right: ImGuiDir_ = 1;
@@ -525,6 +637,10 @@ pub const ImGuiDir_Up: ImGuiDir_ = 2;
 pub const ImGuiDir_Down: ImGuiDir_ = 3;
 pub const ImGuiDir_COUNT: ImGuiDir_ = 4;
 pub type ImGuiDir_ = cty::c_int;
+pub const ImGuiSortDirection_None: ImGuiSortDirection_ = 0;
+pub const ImGuiSortDirection_Ascending: ImGuiSortDirection_ = 1;
+pub const ImGuiSortDirection_Descending: ImGuiSortDirection_ = 2;
+pub type ImGuiSortDirection_ = cty::c_int;
 pub const ImGuiKey_Tab: ImGuiKey_ = 0;
 pub const ImGuiKey_LeftArrow: ImGuiKey_ = 1;
 pub const ImGuiKey_RightArrow: ImGuiKey_ = 2;
@@ -548,13 +664,13 @@ pub const ImGuiKey_X: ImGuiKey_ = 19;
 pub const ImGuiKey_Y: ImGuiKey_ = 20;
 pub const ImGuiKey_Z: ImGuiKey_ = 21;
 pub const ImGuiKey_COUNT: ImGuiKey_ = 22;
-pub type ImGuiKey_ = cty::c_uint;
+pub type ImGuiKey_ = cty::c_int;
 pub const ImGuiKeyModFlags_None: ImGuiKeyModFlags_ = 0;
 pub const ImGuiKeyModFlags_Ctrl: ImGuiKeyModFlags_ = 1;
 pub const ImGuiKeyModFlags_Shift: ImGuiKeyModFlags_ = 2;
 pub const ImGuiKeyModFlags_Alt: ImGuiKeyModFlags_ = 4;
 pub const ImGuiKeyModFlags_Super: ImGuiKeyModFlags_ = 8;
-pub type ImGuiKeyModFlags_ = cty::c_uint;
+pub type ImGuiKeyModFlags_ = cty::c_int;
 pub const ImGuiNavInput_Activate: ImGuiNavInput_ = 0;
 pub const ImGuiNavInput_Cancel: ImGuiNavInput_ = 1;
 pub const ImGuiNavInput_Input: ImGuiNavInput_ = 2;
@@ -578,7 +694,7 @@ pub const ImGuiNavInput_KeyUp_: ImGuiNavInput_ = 19;
 pub const ImGuiNavInput_KeyDown_: ImGuiNavInput_ = 20;
 pub const ImGuiNavInput_COUNT: ImGuiNavInput_ = 21;
 pub const ImGuiNavInput_InternalStart_: ImGuiNavInput_ = 16;
-pub type ImGuiNavInput_ = cty::c_uint;
+pub type ImGuiNavInput_ = cty::c_int;
 pub const ImGuiConfigFlags_None: ImGuiConfigFlags_ = 0;
 pub const ImGuiConfigFlags_NavEnableKeyboard: ImGuiConfigFlags_ = 1;
 pub const ImGuiConfigFlags_NavEnableGamepad: ImGuiConfigFlags_ = 2;
@@ -586,15 +702,22 @@ pub const ImGuiConfigFlags_NavEnableSetMousePos: ImGuiConfigFlags_ = 4;
 pub const ImGuiConfigFlags_NavNoCaptureKeyboard: ImGuiConfigFlags_ = 8;
 pub const ImGuiConfigFlags_NoMouse: ImGuiConfigFlags_ = 16;
 pub const ImGuiConfigFlags_NoMouseCursorChange: ImGuiConfigFlags_ = 32;
+pub const ImGuiConfigFlags_DockingEnable: ImGuiConfigFlags_ = 64;
+pub const ImGuiConfigFlags_ViewportsEnable: ImGuiConfigFlags_ = 1024;
+pub const ImGuiConfigFlags_DpiEnableScaleViewports: ImGuiConfigFlags_ = 16384;
+pub const ImGuiConfigFlags_DpiEnableScaleFonts: ImGuiConfigFlags_ = 32768;
 pub const ImGuiConfigFlags_IsSRGB: ImGuiConfigFlags_ = 1048576;
 pub const ImGuiConfigFlags_IsTouchScreen: ImGuiConfigFlags_ = 2097152;
-pub type ImGuiConfigFlags_ = cty::c_uint;
+pub type ImGuiConfigFlags_ = cty::c_int;
 pub const ImGuiBackendFlags_None: ImGuiBackendFlags_ = 0;
 pub const ImGuiBackendFlags_HasGamepad: ImGuiBackendFlags_ = 1;
 pub const ImGuiBackendFlags_HasMouseCursors: ImGuiBackendFlags_ = 2;
 pub const ImGuiBackendFlags_HasSetMousePos: ImGuiBackendFlags_ = 4;
 pub const ImGuiBackendFlags_RendererHasVtxOffset: ImGuiBackendFlags_ = 8;
-pub type ImGuiBackendFlags_ = cty::c_uint;
+pub const ImGuiBackendFlags_PlatformHasViewports: ImGuiBackendFlags_ = 1024;
+pub const ImGuiBackendFlags_HasMouseHoveredViewport: ImGuiBackendFlags_ = 2048;
+pub const ImGuiBackendFlags_RendererHasViewports: ImGuiBackendFlags_ = 4096;
+pub type ImGuiBackendFlags_ = cty::c_int;
 pub const ImGuiCol_Text: ImGuiCol_ = 0;
 pub const ImGuiCol_TextDisabled: ImGuiCol_ = 1;
 pub const ImGuiCol_WindowBg: ImGuiCol_ = 2;
@@ -633,18 +756,25 @@ pub const ImGuiCol_TabHovered: ImGuiCol_ = 34;
 pub const ImGuiCol_TabActive: ImGuiCol_ = 35;
 pub const ImGuiCol_TabUnfocused: ImGuiCol_ = 36;
 pub const ImGuiCol_TabUnfocusedActive: ImGuiCol_ = 37;
-pub const ImGuiCol_PlotLines: ImGuiCol_ = 38;
-pub const ImGuiCol_PlotLinesHovered: ImGuiCol_ = 39;
-pub const ImGuiCol_PlotHistogram: ImGuiCol_ = 40;
-pub const ImGuiCol_PlotHistogramHovered: ImGuiCol_ = 41;
-pub const ImGuiCol_TextSelectedBg: ImGuiCol_ = 42;
-pub const ImGuiCol_DragDropTarget: ImGuiCol_ = 43;
-pub const ImGuiCol_NavHighlight: ImGuiCol_ = 44;
-pub const ImGuiCol_NavWindowingHighlight: ImGuiCol_ = 45;
-pub const ImGuiCol_NavWindowingDimBg: ImGuiCol_ = 46;
-pub const ImGuiCol_ModalWindowDimBg: ImGuiCol_ = 47;
-pub const ImGuiCol_COUNT: ImGuiCol_ = 48;
-pub type ImGuiCol_ = cty::c_uint;
+pub const ImGuiCol_DockingPreview: ImGuiCol_ = 38;
+pub const ImGuiCol_DockingEmptyBg: ImGuiCol_ = 39;
+pub const ImGuiCol_PlotLines: ImGuiCol_ = 40;
+pub const ImGuiCol_PlotLinesHovered: ImGuiCol_ = 41;
+pub const ImGuiCol_PlotHistogram: ImGuiCol_ = 42;
+pub const ImGuiCol_PlotHistogramHovered: ImGuiCol_ = 43;
+pub const ImGuiCol_TableHeaderBg: ImGuiCol_ = 44;
+pub const ImGuiCol_TableBorderStrong: ImGuiCol_ = 45;
+pub const ImGuiCol_TableBorderLight: ImGuiCol_ = 46;
+pub const ImGuiCol_TableRowBg: ImGuiCol_ = 47;
+pub const ImGuiCol_TableRowBgAlt: ImGuiCol_ = 48;
+pub const ImGuiCol_TextSelectedBg: ImGuiCol_ = 49;
+pub const ImGuiCol_DragDropTarget: ImGuiCol_ = 50;
+pub const ImGuiCol_NavHighlight: ImGuiCol_ = 51;
+pub const ImGuiCol_NavWindowingHighlight: ImGuiCol_ = 52;
+pub const ImGuiCol_NavWindowingDimBg: ImGuiCol_ = 53;
+pub const ImGuiCol_ModalWindowDimBg: ImGuiCol_ = 54;
+pub const ImGuiCol_COUNT: ImGuiCol_ = 55;
+pub type ImGuiCol_ = cty::c_int;
 pub const ImGuiStyleVar_Alpha: ImGuiStyleVar_ = 0;
 pub const ImGuiStyleVar_WindowPadding: ImGuiStyleVar_ = 1;
 pub const ImGuiStyleVar_WindowRounding: ImGuiStyleVar_ = 2;
@@ -661,22 +791,23 @@ pub const ImGuiStyleVar_FrameBorderSize: ImGuiStyleVar_ = 12;
 pub const ImGuiStyleVar_ItemSpacing: ImGuiStyleVar_ = 13;
 pub const ImGuiStyleVar_ItemInnerSpacing: ImGuiStyleVar_ = 14;
 pub const ImGuiStyleVar_IndentSpacing: ImGuiStyleVar_ = 15;
-pub const ImGuiStyleVar_ScrollbarSize: ImGuiStyleVar_ = 16;
-pub const ImGuiStyleVar_ScrollbarRounding: ImGuiStyleVar_ = 17;
-pub const ImGuiStyleVar_GrabMinSize: ImGuiStyleVar_ = 18;
-pub const ImGuiStyleVar_GrabRounding: ImGuiStyleVar_ = 19;
-pub const ImGuiStyleVar_TabRounding: ImGuiStyleVar_ = 20;
-pub const ImGuiStyleVar_ButtonTextAlign: ImGuiStyleVar_ = 21;
-pub const ImGuiStyleVar_SelectableTextAlign: ImGuiStyleVar_ = 22;
-pub const ImGuiStyleVar_COUNT: ImGuiStyleVar_ = 23;
-pub type ImGuiStyleVar_ = cty::c_uint;
+pub const ImGuiStyleVar_CellPadding: ImGuiStyleVar_ = 16;
+pub const ImGuiStyleVar_ScrollbarSize: ImGuiStyleVar_ = 17;
+pub const ImGuiStyleVar_ScrollbarRounding: ImGuiStyleVar_ = 18;
+pub const ImGuiStyleVar_GrabMinSize: ImGuiStyleVar_ = 19;
+pub const ImGuiStyleVar_GrabRounding: ImGuiStyleVar_ = 20;
+pub const ImGuiStyleVar_TabRounding: ImGuiStyleVar_ = 21;
+pub const ImGuiStyleVar_ButtonTextAlign: ImGuiStyleVar_ = 22;
+pub const ImGuiStyleVar_SelectableTextAlign: ImGuiStyleVar_ = 23;
+pub const ImGuiStyleVar_COUNT: ImGuiStyleVar_ = 24;
+pub type ImGuiStyleVar_ = cty::c_int;
 pub const ImGuiButtonFlags_None: ImGuiButtonFlags_ = 0;
 pub const ImGuiButtonFlags_MouseButtonLeft: ImGuiButtonFlags_ = 1;
 pub const ImGuiButtonFlags_MouseButtonRight: ImGuiButtonFlags_ = 2;
 pub const ImGuiButtonFlags_MouseButtonMiddle: ImGuiButtonFlags_ = 4;
 pub const ImGuiButtonFlags_MouseButtonMask_: ImGuiButtonFlags_ = 7;
 pub const ImGuiButtonFlags_MouseButtonDefault_: ImGuiButtonFlags_ = 1;
-pub type ImGuiButtonFlags_ = cty::c_uint;
+pub type ImGuiButtonFlags_ = cty::c_int;
 pub const ImGuiColorEditFlags_None: ImGuiColorEditFlags_ = 0;
 pub const ImGuiColorEditFlags_NoAlpha: ImGuiColorEditFlags_ = 2;
 pub const ImGuiColorEditFlags_NoPicker: ImGuiColorEditFlags_ = 4;
@@ -706,19 +837,19 @@ pub const ImGuiColorEditFlags__DisplayMask: ImGuiColorEditFlags_ = 7340032;
 pub const ImGuiColorEditFlags__DataTypeMask: ImGuiColorEditFlags_ = 25165824;
 pub const ImGuiColorEditFlags__PickerMask: ImGuiColorEditFlags_ = 100663296;
 pub const ImGuiColorEditFlags__InputMask: ImGuiColorEditFlags_ = 402653184;
-pub type ImGuiColorEditFlags_ = cty::c_uint;
+pub type ImGuiColorEditFlags_ = cty::c_int;
 pub const ImGuiSliderFlags_None: ImGuiSliderFlags_ = 0;
 pub const ImGuiSliderFlags_AlwaysClamp: ImGuiSliderFlags_ = 16;
 pub const ImGuiSliderFlags_Logarithmic: ImGuiSliderFlags_ = 32;
 pub const ImGuiSliderFlags_NoRoundToFormat: ImGuiSliderFlags_ = 64;
 pub const ImGuiSliderFlags_NoInput: ImGuiSliderFlags_ = 128;
 pub const ImGuiSliderFlags_InvalidMask_: ImGuiSliderFlags_ = 1879048207;
-pub type ImGuiSliderFlags_ = cty::c_uint;
+pub type ImGuiSliderFlags_ = cty::c_int;
 pub const ImGuiMouseButton_Left: ImGuiMouseButton_ = 0;
 pub const ImGuiMouseButton_Right: ImGuiMouseButton_ = 1;
 pub const ImGuiMouseButton_Middle: ImGuiMouseButton_ = 2;
 pub const ImGuiMouseButton_COUNT: ImGuiMouseButton_ = 5;
-pub type ImGuiMouseButton_ = cty::c_uint;
+pub type ImGuiMouseButton_ = cty::c_int;
 pub const ImGuiMouseCursor_None: ImGuiMouseCursor_ = -1;
 pub const ImGuiMouseCursor_Arrow: ImGuiMouseCursor_ = 0;
 pub const ImGuiMouseCursor_TextInput: ImGuiMouseCursor_ = 1;
@@ -736,7 +867,7 @@ pub const ImGuiCond_Always: ImGuiCond_ = 1;
 pub const ImGuiCond_Once: ImGuiCond_ = 2;
 pub const ImGuiCond_FirstUseEver: ImGuiCond_ = 4;
 pub const ImGuiCond_Appearing: ImGuiCond_ = 8;
-pub type ImGuiCond_ = cty::c_uint;
+pub type ImGuiCond_ = cty::c_int;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ImGuiStyle {
@@ -756,6 +887,7 @@ pub struct ImGuiStyle {
     pub FrameBorderSize: f32,
     pub ItemSpacing: ImVec2,
     pub ItemInnerSpacing: ImVec2,
+    pub CellPadding: ImVec2,
     pub TouchExtraPadding: ImVec2,
     pub IndentSpacing: f32,
     pub ColumnsMinSpacing: f32,
@@ -778,7 +910,7 @@ pub struct ImGuiStyle {
     pub AntiAliasedFill: bool,
     pub CurveTessellationTol: f32,
     pub CircleSegmentMaxError: f32,
-    pub Colors: [ImVec4; 48usize],
+    pub Colors: [ImVec4; 55usize],
 }
 impl Default for ImGuiStyle {
     fn default() -> Self {
@@ -787,7 +919,7 @@ impl Default for ImGuiStyle {
 }
 impl ::core::fmt::Debug for ImGuiStyle {
     fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
-        write ! (f , "ImGuiStyle {{ Alpha: {:?}, WindowPadding: {:?}, WindowRounding: {:?}, WindowBorderSize: {:?}, WindowMinSize: {:?}, WindowTitleAlign: {:?}, WindowMenuButtonPosition: {:?}, ChildRounding: {:?}, ChildBorderSize: {:?}, PopupRounding: {:?}, PopupBorderSize: {:?}, FramePadding: {:?}, FrameRounding: {:?}, FrameBorderSize: {:?}, ItemSpacing: {:?}, ItemInnerSpacing: {:?}, TouchExtraPadding: {:?}, IndentSpacing: {:?}, ColumnsMinSpacing: {:?}, ScrollbarSize: {:?}, ScrollbarRounding: {:?}, GrabMinSize: {:?}, GrabRounding: {:?}, LogSliderDeadzone: {:?}, TabRounding: {:?}, TabBorderSize: {:?}, TabMinWidthForCloseButton: {:?}, ColorButtonPosition: {:?}, ButtonTextAlign: {:?}, SelectableTextAlign: {:?}, DisplayWindowPadding: {:?}, DisplaySafeAreaPadding: {:?}, MouseCursorScale: {:?}, AntiAliasedLines: {:?}, AntiAliasedLinesUseTex: {:?}, AntiAliasedFill: {:?}, CurveTessellationTol: {:?}, CircleSegmentMaxError: {:?}, Colors: [...] }}" , self . Alpha , self . WindowPadding , self . WindowRounding , self . WindowBorderSize , self . WindowMinSize , self . WindowTitleAlign , self . WindowMenuButtonPosition , self . ChildRounding , self . ChildBorderSize , self . PopupRounding , self . PopupBorderSize , self . FramePadding , self . FrameRounding , self . FrameBorderSize , self . ItemSpacing , self . ItemInnerSpacing , self . TouchExtraPadding , self . IndentSpacing , self . ColumnsMinSpacing , self . ScrollbarSize , self . ScrollbarRounding , self . GrabMinSize , self . GrabRounding , self . LogSliderDeadzone , self . TabRounding , self . TabBorderSize , self . TabMinWidthForCloseButton , self . ColorButtonPosition , self . ButtonTextAlign , self . SelectableTextAlign , self . DisplayWindowPadding , self . DisplaySafeAreaPadding , self . MouseCursorScale , self . AntiAliasedLines , self . AntiAliasedLinesUseTex , self . AntiAliasedFill , self . CurveTessellationTol , self . CircleSegmentMaxError)
+        write ! (f , "ImGuiStyle {{ Alpha: {:?}, WindowPadding: {:?}, WindowRounding: {:?}, WindowBorderSize: {:?}, WindowMinSize: {:?}, WindowTitleAlign: {:?}, WindowMenuButtonPosition: {:?}, ChildRounding: {:?}, ChildBorderSize: {:?}, PopupRounding: {:?}, PopupBorderSize: {:?}, FramePadding: {:?}, FrameRounding: {:?}, FrameBorderSize: {:?}, ItemSpacing: {:?}, ItemInnerSpacing: {:?}, CellPadding: {:?}, TouchExtraPadding: {:?}, IndentSpacing: {:?}, ColumnsMinSpacing: {:?}, ScrollbarSize: {:?}, ScrollbarRounding: {:?}, GrabMinSize: {:?}, GrabRounding: {:?}, LogSliderDeadzone: {:?}, TabRounding: {:?}, TabBorderSize: {:?}, TabMinWidthForCloseButton: {:?}, ColorButtonPosition: {:?}, ButtonTextAlign: {:?}, SelectableTextAlign: {:?}, DisplayWindowPadding: {:?}, DisplaySafeAreaPadding: {:?}, MouseCursorScale: {:?}, AntiAliasedLines: {:?}, AntiAliasedLinesUseTex: {:?}, AntiAliasedFill: {:?}, CurveTessellationTol: {:?}, CircleSegmentMaxError: {:?}, Colors: [...] }}" , self . Alpha , self . WindowPadding , self . WindowRounding , self . WindowBorderSize , self . WindowMinSize , self . WindowTitleAlign , self . WindowMenuButtonPosition , self . ChildRounding , self . ChildBorderSize , self . PopupRounding , self . PopupBorderSize , self . FramePadding , self . FrameRounding , self . FrameBorderSize , self . ItemSpacing , self . ItemInnerSpacing , self . CellPadding , self . TouchExtraPadding , self . IndentSpacing , self . ColumnsMinSpacing , self . ScrollbarSize , self . ScrollbarRounding , self . GrabMinSize , self . GrabRounding , self . LogSliderDeadzone , self . TabRounding , self . TabBorderSize , self . TabMinWidthForCloseButton , self . ColorButtonPosition , self . ButtonTextAlign , self . SelectableTextAlign , self . DisplayWindowPadding , self . DisplaySafeAreaPadding , self . MouseCursorScale , self . AntiAliasedLines , self . AntiAliasedLinesUseTex , self . AntiAliasedFill , self . CurveTessellationTol , self . CircleSegmentMaxError)
     }
 }
 #[repr(C)]
@@ -812,12 +944,20 @@ pub struct ImGuiIO {
     pub FontAllowUserScaling: bool,
     pub FontDefault: *mut ImFont,
     pub DisplayFramebufferScale: ImVec2,
+    pub ConfigDockingNoSplit: bool,
+    pub ConfigDockingWithShift: bool,
+    pub ConfigDockingAlwaysTabBar: bool,
+    pub ConfigDockingTransparentPayload: bool,
+    pub ConfigViewportsNoAutoMerge: bool,
+    pub ConfigViewportsNoTaskBarIcon: bool,
+    pub ConfigViewportsNoDecoration: bool,
+    pub ConfigViewportsNoDefaultParent: bool,
     pub MouseDrawCursor: bool,
     pub ConfigMacOSXBehaviors: bool,
     pub ConfigInputTextCursorBlink: bool,
     pub ConfigWindowsResizeFromEdges: bool,
     pub ConfigWindowsMoveFromTitleBarOnly: bool,
-    pub ConfigWindowsMemoryCompactTimer: f32,
+    pub ConfigMemoryCompactTimer: f32,
     pub BackendPlatformName: *const cty::c_char,
     pub BackendRendererName: *const cty::c_char,
     pub BackendPlatformUserData: *mut cty::c_void,
@@ -830,14 +970,11 @@ pub struct ImGuiIO {
         unsafe extern "C" fn(user_data: *mut cty::c_void, text: *const cty::c_char),
     >,
     pub ClipboardUserData: *mut cty::c_void,
-    pub ImeSetInputScreenPosFn:
-        ::core::option::Option<unsafe extern "C" fn(x: cty::c_int, y: cty::c_int)>,
-    pub ImeWindowHandle: *mut cty::c_void,
-    pub RenderDrawListsFnUnused: *mut cty::c_void,
     pub MousePos: ImVec2,
     pub MouseDown: [bool; 5usize],
     pub MouseWheel: f32,
     pub MouseWheelH: f32,
+    pub MouseHoveredViewport: ImGuiID,
     pub KeyCtrl: bool,
     pub KeyShift: bool,
     pub KeyAlt: bool,
@@ -886,7 +1023,7 @@ impl Default for ImGuiIO {
 }
 impl ::core::fmt::Debug for ImGuiIO {
     fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
-        write ! (f , "ImGuiIO {{ ConfigFlags: {:?}, BackendFlags: {:?}, DisplaySize: {:?}, DeltaTime: {:?}, IniSavingRate: {:?}, IniFilename: {:?}, LogFilename: {:?}, MouseDoubleClickTime: {:?}, MouseDoubleClickMaxDist: {:?}, MouseDragThreshold: {:?}, KeyMap: {:?}, KeyRepeatDelay: {:?}, KeyRepeatRate: {:?}, UserData: {:?}, Fonts: {:?}, FontGlobalScale: {:?}, FontAllowUserScaling: {:?}, FontDefault: {:?}, DisplayFramebufferScale: {:?}, MouseDrawCursor: {:?}, ConfigMacOSXBehaviors: {:?}, ConfigInputTextCursorBlink: {:?}, ConfigWindowsResizeFromEdges: {:?}, ConfigWindowsMoveFromTitleBarOnly: {:?}, ConfigWindowsMemoryCompactTimer: {:?}, BackendPlatformName: {:?}, BackendRendererName: {:?}, BackendPlatformUserData: {:?}, BackendRendererUserData: {:?}, BackendLanguageUserData: {:?}, GetClipboardTextFn: {:?}, SetClipboardTextFn: {:?}, ClipboardUserData: {:?}, ImeSetInputScreenPosFn: {:?}, ImeWindowHandle: {:?}, RenderDrawListsFnUnused: {:?}, MousePos: {:?}, MouseDown: {:?}, MouseWheel: {:?}, MouseWheelH: {:?}, KeyCtrl: {:?}, KeyShift: {:?}, KeyAlt: {:?}, KeySuper: {:?}, KeysDown: [...], NavInputs: {:?}, WantCaptureMouse: {:?}, WantCaptureKeyboard: {:?}, WantTextInput: {:?}, WantSetMousePos: {:?}, WantSaveIniSettings: {:?}, NavActive: {:?}, NavVisible: {:?}, Framerate: {:?}, MetricsRenderVertices: {:?}, MetricsRenderIndices: {:?}, MetricsRenderWindows: {:?}, MetricsActiveWindows: {:?}, MetricsActiveAllocations: {:?}, MouseDelta: {:?}, KeyMods: {:?}, MousePosPrev: {:?}, MouseClickedPos: {:?}, MouseClickedTime: {:?}, MouseClicked: {:?}, MouseDoubleClicked: {:?}, MouseReleased: {:?}, MouseDownOwned: {:?}, MouseDownWasDoubleClick: {:?}, MouseDownDuration: {:?}, MouseDownDurationPrev: {:?}, MouseDragMaxDistanceAbs: {:?}, MouseDragMaxDistanceSqr: {:?}, KeysDownDuration: [...], KeysDownDurationPrev: [...], NavInputsDownDuration: {:?}, NavInputsDownDurationPrev: {:?}, PenPressure: {:?}, InputQueueSurrogate: {:?}, InputQueueCharacters: {:?} }}" , self . ConfigFlags , self . BackendFlags , self . DisplaySize , self . DeltaTime , self . IniSavingRate , self . IniFilename , self . LogFilename , self . MouseDoubleClickTime , self . MouseDoubleClickMaxDist , self . MouseDragThreshold , self . KeyMap , self . KeyRepeatDelay , self . KeyRepeatRate , self . UserData , self . Fonts , self . FontGlobalScale , self . FontAllowUserScaling , self . FontDefault , self . DisplayFramebufferScale , self . MouseDrawCursor , self . ConfigMacOSXBehaviors , self . ConfigInputTextCursorBlink , self . ConfigWindowsResizeFromEdges , self . ConfigWindowsMoveFromTitleBarOnly , self . ConfigWindowsMemoryCompactTimer , self . BackendPlatformName , self . BackendRendererName , self . BackendPlatformUserData , self . BackendRendererUserData , self . BackendLanguageUserData , self . GetClipboardTextFn , self . SetClipboardTextFn , self . ClipboardUserData , self . ImeSetInputScreenPosFn , self . ImeWindowHandle , self . RenderDrawListsFnUnused , self . MousePos , self . MouseDown , self . MouseWheel , self . MouseWheelH , self . KeyCtrl , self . KeyShift , self . KeyAlt , self . KeySuper , self . NavInputs , self . WantCaptureMouse , self . WantCaptureKeyboard , self . WantTextInput , self . WantSetMousePos , self . WantSaveIniSettings , self . NavActive , self . NavVisible , self . Framerate , self . MetricsRenderVertices , self . MetricsRenderIndices , self . MetricsRenderWindows , self . MetricsActiveWindows , self . MetricsActiveAllocations , self . MouseDelta , self . KeyMods , self . MousePosPrev , self . MouseClickedPos , self . MouseClickedTime , self . MouseClicked , self . MouseDoubleClicked , self . MouseReleased , self . MouseDownOwned , self . MouseDownWasDoubleClick , self . MouseDownDuration , self . MouseDownDurationPrev , self . MouseDragMaxDistanceAbs , self . MouseDragMaxDistanceSqr , self . NavInputsDownDuration , self . NavInputsDownDurationPrev , self . PenPressure , self . InputQueueSurrogate , self . InputQueueCharacters)
+        write ! (f , "ImGuiIO {{ ConfigFlags: {:?}, BackendFlags: {:?}, DisplaySize: {:?}, DeltaTime: {:?}, IniSavingRate: {:?}, IniFilename: {:?}, LogFilename: {:?}, MouseDoubleClickTime: {:?}, MouseDoubleClickMaxDist: {:?}, MouseDragThreshold: {:?}, KeyMap: {:?}, KeyRepeatDelay: {:?}, KeyRepeatRate: {:?}, UserData: {:?}, Fonts: {:?}, FontGlobalScale: {:?}, FontAllowUserScaling: {:?}, FontDefault: {:?}, DisplayFramebufferScale: {:?}, ConfigDockingNoSplit: {:?}, ConfigDockingWithShift: {:?}, ConfigDockingAlwaysTabBar: {:?}, ConfigDockingTransparentPayload: {:?}, ConfigViewportsNoAutoMerge: {:?}, ConfigViewportsNoTaskBarIcon: {:?}, ConfigViewportsNoDecoration: {:?}, ConfigViewportsNoDefaultParent: {:?}, MouseDrawCursor: {:?}, ConfigMacOSXBehaviors: {:?}, ConfigInputTextCursorBlink: {:?}, ConfigWindowsResizeFromEdges: {:?}, ConfigWindowsMoveFromTitleBarOnly: {:?}, ConfigMemoryCompactTimer: {:?}, BackendPlatformName: {:?}, BackendRendererName: {:?}, BackendPlatformUserData: {:?}, BackendRendererUserData: {:?}, BackendLanguageUserData: {:?}, GetClipboardTextFn: {:?}, SetClipboardTextFn: {:?}, ClipboardUserData: {:?}, MousePos: {:?}, MouseDown: {:?}, MouseWheel: {:?}, MouseWheelH: {:?}, MouseHoveredViewport: {:?}, KeyCtrl: {:?}, KeyShift: {:?}, KeyAlt: {:?}, KeySuper: {:?}, KeysDown: [...], NavInputs: {:?}, WantCaptureMouse: {:?}, WantCaptureKeyboard: {:?}, WantTextInput: {:?}, WantSetMousePos: {:?}, WantSaveIniSettings: {:?}, NavActive: {:?}, NavVisible: {:?}, Framerate: {:?}, MetricsRenderVertices: {:?}, MetricsRenderIndices: {:?}, MetricsRenderWindows: {:?}, MetricsActiveWindows: {:?}, MetricsActiveAllocations: {:?}, MouseDelta: {:?}, KeyMods: {:?}, MousePosPrev: {:?}, MouseClickedPos: {:?}, MouseClickedTime: {:?}, MouseClicked: {:?}, MouseDoubleClicked: {:?}, MouseReleased: {:?}, MouseDownOwned: {:?}, MouseDownWasDoubleClick: {:?}, MouseDownDuration: {:?}, MouseDownDurationPrev: {:?}, MouseDragMaxDistanceAbs: {:?}, MouseDragMaxDistanceSqr: {:?}, KeysDownDuration: [...], KeysDownDurationPrev: [...], NavInputsDownDuration: {:?}, NavInputsDownDurationPrev: {:?}, PenPressure: {:?}, InputQueueSurrogate: {:?}, InputQueueCharacters: {:?} }}" , self . ConfigFlags , self . BackendFlags , self . DisplaySize , self . DeltaTime , self . IniSavingRate , self . IniFilename , self . LogFilename , self . MouseDoubleClickTime , self . MouseDoubleClickMaxDist , self . MouseDragThreshold , self . KeyMap , self . KeyRepeatDelay , self . KeyRepeatRate , self . UserData , self . Fonts , self . FontGlobalScale , self . FontAllowUserScaling , self . FontDefault , self . DisplayFramebufferScale , self . ConfigDockingNoSplit , self . ConfigDockingWithShift , self . ConfigDockingAlwaysTabBar , self . ConfigDockingTransparentPayload , self . ConfigViewportsNoAutoMerge , self . ConfigViewportsNoTaskBarIcon , self . ConfigViewportsNoDecoration , self . ConfigViewportsNoDefaultParent , self . MouseDrawCursor , self . ConfigMacOSXBehaviors , self . ConfigInputTextCursorBlink , self . ConfigWindowsResizeFromEdges , self . ConfigWindowsMoveFromTitleBarOnly , self . ConfigMemoryCompactTimer , self . BackendPlatformName , self . BackendRendererName , self . BackendPlatformUserData , self . BackendRendererUserData , self . BackendLanguageUserData , self . GetClipboardTextFn , self . SetClipboardTextFn , self . ClipboardUserData , self . MousePos , self . MouseDown , self . MouseWheel , self . MouseWheelH , self . MouseHoveredViewport , self . KeyCtrl , self . KeyShift , self . KeyAlt , self . KeySuper , self . NavInputs , self . WantCaptureMouse , self . WantCaptureKeyboard , self . WantTextInput , self . WantSetMousePos , self . WantSaveIniSettings , self . NavActive , self . NavVisible , self . Framerate , self . MetricsRenderVertices , self . MetricsRenderIndices , self . MetricsRenderWindows , self . MetricsActiveWindows , self . MetricsActiveAllocations , self . MouseDelta , self . KeyMods , self . MousePosPrev , self . MouseClickedPos , self . MouseClickedTime , self . MouseClicked , self . MouseDoubleClicked , self . MouseReleased , self . MouseDownOwned , self . MouseDownWasDoubleClick , self . MouseDownDuration , self . MouseDownDurationPrev , self . MouseDragMaxDistanceAbs , self . MouseDragMaxDistanceSqr , self . NavInputsDownDuration , self . NavInputsDownDurationPrev , self . PenPressure , self . InputQueueSurrogate , self . InputQueueCharacters)
     }
 }
 #[repr(C)]
@@ -924,6 +1061,18 @@ impl Default for ImGuiSizeCallbackData {
     }
 }
 #[repr(C)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct ImGuiWindowClass {
+    pub ClassId: ImGuiID,
+    pub ParentViewportId: ImGuiID,
+    pub ViewportFlagsOverrideSet: ImGuiViewportFlags,
+    pub ViewportFlagsOverrideClear: ImGuiViewportFlags,
+    pub DockNodeFlagsOverrideSet: ImGuiDockNodeFlags,
+    pub DockNodeFlagsOverrideClear: ImGuiDockNodeFlags,
+    pub DockingAlwaysTabBar: bool,
+    pub DockingAllowUnclassed: bool,
+}
+#[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ImGuiPayload {
     pub Data: *mut cty::c_void,
@@ -943,6 +1092,52 @@ impl Default for ImGuiPayload {
 impl ::core::fmt::Debug for ImGuiPayload {
     fn fmt(&self, f: &mut ::core::fmt::Formatter<'_>) -> ::core::fmt::Result {
         write ! (f , "ImGuiPayload {{ Data: {:?}, DataSize: {:?}, SourceId: {:?}, SourceParentId: {:?}, DataFrameCount: {:?}, DataType: [...], Preview: {:?}, Delivery: {:?} }}" , self . Data , self . DataSize , self . SourceId , self . SourceParentId , self . DataFrameCount , self . Preview , self . Delivery)
+    }
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct ImGuiTableColumnSortSpecs {
+    pub ColumnUserID: ImGuiID,
+    pub ColumnIndex: ImS16,
+    pub SortOrder: ImS16,
+    pub _bitfield_1: __BindgenBitfieldUnit<[u8; 1usize], u8>,
+    pub __bindgen_padding_0: [u8; 3usize],
+}
+impl ImGuiTableColumnSortSpecs {
+    #[inline]
+    pub fn SortDirection(&self) -> ImGuiSortDirection {
+        unsafe { ::core::mem::transmute(self._bitfield_1.get(0usize, 8u8) as u32) }
+    }
+    #[inline]
+    pub fn set_SortDirection(&mut self, val: ImGuiSortDirection) {
+        unsafe {
+            let val: u32 = ::core::mem::transmute(val);
+            self._bitfield_1.set(0usize, 8u8, val as u64)
+        }
+    }
+    #[inline]
+    pub fn new_bitfield_1(
+        SortDirection: ImGuiSortDirection,
+    ) -> __BindgenBitfieldUnit<[u8; 1usize], u8> {
+        let mut __bindgen_bitfield_unit: __BindgenBitfieldUnit<[u8; 1usize], u8> =
+            Default::default();
+        __bindgen_bitfield_unit.set(0usize, 8u8, {
+            let SortDirection: u32 = unsafe { ::core::mem::transmute(SortDirection) };
+            SortDirection as u64
+        });
+        __bindgen_bitfield_unit
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct ImGuiTableSortSpecs {
+    pub Specs: *const ImGuiTableColumnSortSpecs,
+    pub SpecsCount: cty::c_int,
+    pub SpecsDirty: bool,
+}
+impl Default for ImGuiTableSortSpecs {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
     }
 }
 #[repr(C)]
@@ -1047,6 +1242,7 @@ pub struct ImGuiListClipper {
     pub DisplayEnd: cty::c_int,
     pub ItemsCount: cty::c_int,
     pub StepNo: cty::c_int,
+    pub ItemsFrozen: cty::c_int,
     pub ItemsHeight: f32,
     pub StartPosY: f32,
 }
@@ -1077,6 +1273,18 @@ pub struct ImDrawVert {
     pub pos: ImVec2,
     pub uv: ImVec2,
     pub col: ImU32,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ImDrawCmdHeader {
+    pub ClipRect: ImVec4,
+    pub TextureId: ImTextureID,
+    pub VtxOffset: cty::c_uint,
+}
+impl Default for ImDrawCmdHeader {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -1111,13 +1319,13 @@ pub const ImDrawCornerFlags_Bot: ImDrawCornerFlags_ = 12;
 pub const ImDrawCornerFlags_Left: ImDrawCornerFlags_ = 5;
 pub const ImDrawCornerFlags_Right: ImDrawCornerFlags_ = 10;
 pub const ImDrawCornerFlags_All: ImDrawCornerFlags_ = 15;
-pub type ImDrawCornerFlags_ = cty::c_uint;
+pub type ImDrawCornerFlags_ = cty::c_int;
 pub const ImDrawListFlags_None: ImDrawListFlags_ = 0;
 pub const ImDrawListFlags_AntiAliasedLines: ImDrawListFlags_ = 1;
 pub const ImDrawListFlags_AntiAliasedLinesUseTex: ImDrawListFlags_ = 2;
 pub const ImDrawListFlags_AntiAliasedFill: ImDrawListFlags_ = 4;
 pub const ImDrawListFlags_AllowVtxOffset: ImDrawListFlags_ = 8;
-pub type ImDrawListFlags_ = cty::c_uint;
+pub type ImDrawListFlags_ = cty::c_int;
 #[repr(C)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub struct ImDrawList {
@@ -1125,15 +1333,15 @@ pub struct ImDrawList {
     pub IdxBuffer: ImVector_ImDrawIdx,
     pub VtxBuffer: ImVector_ImDrawVert,
     pub Flags: ImDrawListFlags,
+    pub _VtxCurrentIdx: cty::c_uint,
     pub _Data: *const ImDrawListSharedData,
     pub _OwnerName: *const cty::c_char,
-    pub _VtxCurrentIdx: cty::c_uint,
     pub _VtxWritePtr: *mut ImDrawVert,
     pub _IdxWritePtr: *mut ImDrawIdx,
     pub _ClipRectStack: ImVector_ImVec4,
     pub _TextureIdStack: ImVector_ImTextureID,
     pub _Path: ImVector_ImVec2,
-    pub _CmdHeader: ImDrawCmd,
+    pub _CmdHeader: ImDrawCmdHeader,
     pub _Splitter: ImDrawListSplitter,
 }
 impl Default for ImDrawList {
@@ -1152,6 +1360,7 @@ pub struct ImDrawData {
     pub DisplayPos: ImVec2,
     pub DisplaySize: ImVec2,
     pub FramebufferScale: ImVec2,
+    pub OwnerViewport: *mut ImGuiViewport,
 }
 impl Default for ImDrawData {
     fn default() -> Self {
@@ -1277,7 +1486,7 @@ pub const ImFontAtlasFlags_None: ImFontAtlasFlags_ = 0;
 pub const ImFontAtlasFlags_NoPowerOfTwoHeight: ImFontAtlasFlags_ = 1;
 pub const ImFontAtlasFlags_NoMouseCursors: ImFontAtlasFlags_ = 2;
 pub const ImFontAtlasFlags_NoBakedLines: ImFontAtlasFlags_ = 4;
-pub type ImFontAtlasFlags_ = cty::c_uint;
+pub type ImFontAtlasFlags_ = cty::c_int;
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct ImFontAtlas {
@@ -1331,6 +1540,119 @@ pub struct ImFont {
     pub Used4kPagesMap: [ImU8; 2usize],
 }
 impl Default for ImFont {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct ImGuiPlatformIO {
+    pub Platform_CreateWindow: ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport)>,
+    pub Platform_DestroyWindow:
+        ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport)>,
+    pub Platform_ShowWindow: ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport)>,
+    pub Platform_SetWindowPos:
+        ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport, pos: ImVec2)>,
+    pub Platform_GetWindowPos:
+        ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport) -> ImVec2>,
+    pub Platform_SetWindowSize:
+        ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport, size: ImVec2)>,
+    pub Platform_GetWindowSize:
+        ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport) -> ImVec2>,
+    pub Platform_SetWindowFocus:
+        ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport)>,
+    pub Platform_GetWindowFocus:
+        ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport) -> bool>,
+    pub Platform_GetWindowMinimized:
+        ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport) -> bool>,
+    pub Platform_SetWindowTitle: ::core::option::Option<
+        unsafe extern "C" fn(vp: *mut ImGuiViewport, str_: *const cty::c_char),
+    >,
+    pub Platform_SetWindowAlpha:
+        ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport, alpha: f32)>,
+    pub Platform_UpdateWindow: ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport)>,
+    pub Platform_RenderWindow: ::core::option::Option<
+        unsafe extern "C" fn(vp: *mut ImGuiViewport, render_arg: *mut cty::c_void),
+    >,
+    pub Platform_SwapBuffers: ::core::option::Option<
+        unsafe extern "C" fn(vp: *mut ImGuiViewport, render_arg: *mut cty::c_void),
+    >,
+    pub Platform_GetWindowDpiScale:
+        ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport) -> f32>,
+    pub Platform_OnChangedViewport:
+        ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport)>,
+    pub Platform_SetImeInputPos:
+        ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport, pos: ImVec2)>,
+    pub Platform_CreateVkSurface: ::core::option::Option<
+        unsafe extern "C" fn(
+            vp: *mut ImGuiViewport,
+            vk_inst: ImU64,
+            vk_allocators: *const cty::c_void,
+            out_vk_surface: *mut ImU64,
+        ) -> cty::c_int,
+    >,
+    pub Renderer_CreateWindow: ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport)>,
+    pub Renderer_DestroyWindow:
+        ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport)>,
+    pub Renderer_SetWindowSize:
+        ::core::option::Option<unsafe extern "C" fn(vp: *mut ImGuiViewport, size: ImVec2)>,
+    pub Renderer_RenderWindow: ::core::option::Option<
+        unsafe extern "C" fn(vp: *mut ImGuiViewport, render_arg: *mut cty::c_void),
+    >,
+    pub Renderer_SwapBuffers: ::core::option::Option<
+        unsafe extern "C" fn(vp: *mut ImGuiViewport, render_arg: *mut cty::c_void),
+    >,
+    pub Monitors: ImVector_ImGuiPlatformMonitor,
+    pub MainViewport: *mut ImGuiViewport,
+    pub Viewports: ImVector_ImGuiViewportPtr,
+}
+impl Default for ImGuiPlatformIO {
+    fn default() -> Self {
+        unsafe { ::core::mem::zeroed() }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
+pub struct ImGuiPlatformMonitor {
+    pub MainPos: ImVec2,
+    pub MainSize: ImVec2,
+    pub WorkPos: ImVec2,
+    pub WorkSize: ImVec2,
+    pub DpiScale: f32,
+}
+pub const ImGuiViewportFlags_None: ImGuiViewportFlags_ = 0;
+pub const ImGuiViewportFlags_NoDecoration: ImGuiViewportFlags_ = 1;
+pub const ImGuiViewportFlags_NoTaskBarIcon: ImGuiViewportFlags_ = 2;
+pub const ImGuiViewportFlags_NoFocusOnAppearing: ImGuiViewportFlags_ = 4;
+pub const ImGuiViewportFlags_NoFocusOnClick: ImGuiViewportFlags_ = 8;
+pub const ImGuiViewportFlags_NoInputs: ImGuiViewportFlags_ = 16;
+pub const ImGuiViewportFlags_NoRendererClear: ImGuiViewportFlags_ = 32;
+pub const ImGuiViewportFlags_TopMost: ImGuiViewportFlags_ = 64;
+pub const ImGuiViewportFlags_Minimized: ImGuiViewportFlags_ = 128;
+pub const ImGuiViewportFlags_NoAutoMerge: ImGuiViewportFlags_ = 256;
+pub const ImGuiViewportFlags_CanHostOtherWindows: ImGuiViewportFlags_ = 512;
+pub type ImGuiViewportFlags_ = cty::c_int;
+#[repr(C)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct ImGuiViewport {
+    pub ID: ImGuiID,
+    pub Flags: ImGuiViewportFlags,
+    pub Pos: ImVec2,
+    pub Size: ImVec2,
+    pub WorkOffsetMin: ImVec2,
+    pub WorkOffsetMax: ImVec2,
+    pub DpiScale: f32,
+    pub DrawData: *mut ImDrawData,
+    pub ParentViewportId: ImGuiID,
+    pub RendererUserData: *mut cty::c_void,
+    pub PlatformUserData: *mut cty::c_void,
+    pub PlatformHandle: *mut cty::c_void,
+    pub PlatformHandleRaw: *mut cty::c_void,
+    pub PlatformRequestMove: bool,
+    pub PlatformRequestResize: bool,
+    pub PlatformRequestClose: bool,
+}
+impl Default for ImGuiViewport {
     fn default() -> Self {
         unsafe { ::core::mem::zeroed() }
     }
@@ -1405,11 +1727,11 @@ extern "C" {
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igShowAboutWindow(p_open: *mut bool);
+    pub fn igShowMetricsWindow(p_open: *mut bool);
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igShowMetricsWindow(p_open: *mut bool);
+    pub fn igShowAboutWindow(p_open: *mut bool);
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
@@ -1437,11 +1759,11 @@ extern "C" {
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igStyleColorsClassic(dst: *mut ImGuiStyle);
+    pub fn igStyleColorsLight(dst: *mut ImGuiStyle);
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igStyleColorsLight(dst: *mut ImGuiStyle);
+    pub fn igStyleColorsClassic(dst: *mut ImGuiStyle);
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
@@ -1488,6 +1810,14 @@ extern "C" {
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
     pub fn igGetWindowDrawList() -> *mut ImDrawList;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igGetWindowDpiScale() -> f32;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igGetWindowViewport() -> *mut ImGuiViewport;
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
@@ -1540,6 +1870,10 @@ extern "C" {
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
+    pub fn igSetNextWindowViewport(viewport_id: ImGuiID);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
     pub fn igSetWindowPosVec2(pos: ImVec2, cond: ImGuiCond);
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
@@ -1576,11 +1910,11 @@ extern "C" {
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igGetContentRegionMax(pOut: *mut ImVec2);
+    pub fn igGetContentRegionAvail(pOut: *mut ImVec2);
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igGetContentRegionAvail(pOut: *mut ImVec2);
+    pub fn igGetContentRegionMax(pOut: *mut ImVec2);
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
@@ -1604,19 +1938,19 @@ extern "C" {
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igGetScrollMaxX() -> f32;
-}
-#[link(wasm_import_module = "imgui-sys-v0")]
-extern "C" {
-    pub fn igGetScrollMaxY() -> f32;
-}
-#[link(wasm_import_module = "imgui-sys-v0")]
-extern "C" {
     pub fn igSetScrollX(scroll_x: f32);
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
     pub fn igSetScrollY(scroll_y: f32);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igGetScrollMaxX() -> f32;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igGetScrollMaxY() -> f32;
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
@@ -1668,31 +2002,19 @@ extern "C" {
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igGetStyleColorVec4(idx: ImGuiCol) -> *const ImVec4;
+    pub fn igPushAllowKeyboardFocus(allow_keyboard_focus: bool);
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igGetFont() -> *mut ImFont;
+    pub fn igPopAllowKeyboardFocus();
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igGetFontSize() -> f32;
+    pub fn igPushButtonRepeat(repeat: bool);
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igGetFontTexUvWhitePixel(pOut: *mut ImVec2);
-}
-#[link(wasm_import_module = "imgui-sys-v0")]
-extern "C" {
-    pub fn igGetColorU32Col(idx: ImGuiCol, alpha_mul: f32) -> ImU32;
-}
-#[link(wasm_import_module = "imgui-sys-v0")]
-extern "C" {
-    pub fn igGetColorU32Vec4(col: ImVec4) -> ImU32;
-}
-#[link(wasm_import_module = "imgui-sys-v0")]
-extern "C" {
-    pub fn igGetColorU32U32(col: ImU32) -> ImU32;
+    pub fn igPopButtonRepeat();
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
@@ -1720,19 +2042,31 @@ extern "C" {
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igPushAllowKeyboardFocus(allow_keyboard_focus: bool);
+    pub fn igGetFont() -> *mut ImFont;
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igPopAllowKeyboardFocus();
+    pub fn igGetFontSize() -> f32;
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igPushButtonRepeat(repeat: bool);
+    pub fn igGetFontTexUvWhitePixel(pOut: *mut ImVec2);
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igPopButtonRepeat();
+    pub fn igGetColorU32Col(idx: ImGuiCol, alpha_mul: f32) -> ImU32;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igGetColorU32Vec4(col: ImVec4) -> ImU32;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igGetColorU32U32(col: ImU32) -> ImU32;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igGetStyleColorVec4(idx: ImGuiCol) -> *const ImVec4;
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
@@ -1938,7 +2272,15 @@ extern "C" {
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igCheckboxFlags(
+    pub fn igCheckboxFlagsIntPtr(
+        label: *const cty::c_char,
+        flags: *mut cty::c_int,
+        flags_value: cty::c_int,
+    ) -> bool;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igCheckboxFlagsUintPtr(
         label: *const cty::c_char,
         flags: *mut cty::c_uint,
         flags_value: cty::c_uint,
@@ -2828,6 +3170,81 @@ extern "C" {
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
+    pub fn igBeginTable(
+        str_id: *const cty::c_char,
+        columns_count: cty::c_int,
+        flags: ImGuiTableFlags,
+        outer_size: ImVec2,
+        inner_width: f32,
+    ) -> bool;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igEndTable();
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igTableNextRow(row_flags: ImGuiTableRowFlags, min_row_height: f32);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igTableNextColumn() -> bool;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igTableSetColumnIndex(column_n: cty::c_int) -> bool;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igTableGetColumnIndex() -> cty::c_int;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igTableGetRowIndex() -> cty::c_int;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igTableSetupColumn(
+        label: *const cty::c_char,
+        flags: ImGuiTableColumnFlags,
+        init_width_or_weight: f32,
+        user_id: ImU32,
+    );
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igTableSetupScrollFreeze(cols: cty::c_int, rows: cty::c_int);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igTableHeadersRow();
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igTableHeader(label: *const cty::c_char);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igTableGetColumnCount() -> cty::c_int;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igTableGetColumnName(column_n: cty::c_int) -> *const cty::c_char;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igTableGetColumnFlags(column_n: cty::c_int) -> ImGuiTableColumnFlags;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igTableGetSortSpecs() -> *mut ImGuiTableSortSpecs;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igTableSetBgColor(bg_target: ImGuiTableBgTarget, color: ImU32, column_n: cty::c_int);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
     pub fn igColumns(count: cty::c_int, id: *const cty::c_char, border: bool);
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
@@ -2885,6 +3302,39 @@ extern "C" {
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
     pub fn igSetTabItemClosed(tab_or_docked_window_label: *const cty::c_char);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igDockSpace(
+        id: ImGuiID,
+        size: ImVec2,
+        flags: ImGuiDockNodeFlags,
+        window_class: *const ImGuiWindowClass,
+    );
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igDockSpaceOverViewport(
+        viewport: *mut ImGuiViewport,
+        flags: ImGuiDockNodeFlags,
+        window_class: *const ImGuiWindowClass,
+    ) -> ImGuiID;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igSetNextWindowDockID(dock_id: ImGuiID, cond: ImGuiCond);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igSetNextWindowClass(window_class: *const ImGuiWindowClass);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igGetWindowDockID() -> ImGuiID;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igIsWindowDocked() -> bool;
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
@@ -3048,11 +3498,19 @@ extern "C" {
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igGetBackgroundDrawList() -> *mut ImDrawList;
+    pub fn igGetBackgroundDrawListNil() -> *mut ImDrawList;
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn igGetForegroundDrawList() -> *mut ImDrawList;
+    pub fn igGetForegroundDrawListNil() -> *mut ImDrawList;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igGetBackgroundDrawListViewportPtr(viewport: *mut ImGuiViewport) -> *mut ImDrawList;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igGetForegroundDrawListViewportPtr(viewport: *mut ImGuiViewport) -> *mut ImDrawList;
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
@@ -3270,6 +3728,37 @@ extern "C" {
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
+    pub fn igGetPlatformIO() -> *mut ImGuiPlatformIO;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igGetMainViewport() -> *mut ImGuiViewport;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igUpdatePlatformWindows();
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igRenderPlatformWindowsDefault(
+        platform_render_arg: *mut cty::c_void,
+        renderer_render_arg: *mut cty::c_void,
+    );
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igDestroyPlatformWindows();
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igFindViewportByID(id: ImGuiID) -> *mut ImGuiViewport;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn igFindViewportByPlatformHandle(platform_handle: *mut cty::c_void) -> *mut ImGuiViewport;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
     pub fn ImGuiStyle_ImGuiStyle() -> *mut ImGuiStyle;
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
@@ -3343,6 +3832,14 @@ extern "C" {
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
+    pub fn ImGuiWindowClass_ImGuiWindowClass() -> *mut ImGuiWindowClass;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImGuiWindowClass_destroy(self_: *mut ImGuiWindowClass);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
     pub fn ImGuiPayload_ImGuiPayload() -> *mut ImGuiPayload;
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
@@ -3364,6 +3861,22 @@ extern "C" {
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
     pub fn ImGuiPayload_IsDelivery(self_: *mut ImGuiPayload) -> bool;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImGuiTableColumnSortSpecs_ImGuiTableColumnSortSpecs() -> *mut ImGuiTableColumnSortSpecs;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImGuiTableColumnSortSpecs_destroy(self_: *mut ImGuiTableColumnSortSpecs);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImGuiTableSortSpecs_ImGuiTableSortSpecs() -> *mut ImGuiTableSortSpecs;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImGuiTableSortSpecs_destroy(self_: *mut ImGuiTableSortSpecs);
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
@@ -3910,12 +4423,24 @@ extern "C" {
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn ImDrawList_AddBezierCurve(
+    pub fn ImDrawList_AddBezierCubic(
         self_: *mut ImDrawList,
         p1: ImVec2,
         p2: ImVec2,
         p3: ImVec2,
         p4: ImVec2,
+        col: ImU32,
+        thickness: f32,
+        num_segments: cty::c_int,
+    );
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImDrawList_AddBezierQuadratic(
+        self_: *mut ImDrawList,
+        p1: ImVec2,
+        p2: ImVec2,
+        p3: ImVec2,
         col: ImU32,
         thickness: f32,
         num_segments: cty::c_int,
@@ -4006,11 +4531,20 @@ extern "C" {
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {
-    pub fn ImDrawList_PathBezierCurveTo(
+    pub fn ImDrawList_PathBezierCubicCurveTo(
         self_: *mut ImDrawList,
         p2: ImVec2,
         p3: ImVec2,
         p4: ImVec2,
+        num_segments: cty::c_int,
+    );
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImDrawList_PathBezierQuadraticCurveTo(
+        self_: *mut ImDrawList,
+        p2: ImVec2,
+        p3: ImVec2,
         num_segments: cty::c_int,
     );
 }
@@ -4538,6 +5072,42 @@ extern "C" {
         c_begin: cty::c_uint,
         c_last: cty::c_uint,
     ) -> bool;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImGuiPlatformIO_ImGuiPlatformIO() -> *mut ImGuiPlatformIO;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImGuiPlatformIO_destroy(self_: *mut ImGuiPlatformIO);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImGuiPlatformMonitor_ImGuiPlatformMonitor() -> *mut ImGuiPlatformMonitor;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImGuiPlatformMonitor_destroy(self_: *mut ImGuiPlatformMonitor);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImGuiViewport_ImGuiViewport() -> *mut ImGuiViewport;
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImGuiViewport_destroy(self_: *mut ImGuiViewport);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImGuiViewport_GetCenter(pOut: *mut ImVec2, self_: *mut ImGuiViewport);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImGuiViewport_GetWorkPos(pOut: *mut ImVec2, self_: *mut ImGuiViewport);
+}
+#[link(wasm_import_module = "imgui-sys-v0")]
+extern "C" {
+    pub fn ImGuiViewport_GetWorkSize(pOut: *mut ImVec2, self_: *mut ImGuiViewport);
 }
 #[link(wasm_import_module = "imgui-sys-v0")]
 extern "C" {

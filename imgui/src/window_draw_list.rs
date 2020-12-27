@@ -91,7 +91,7 @@ impl<'ui> WindowDrawList<'ui> {
 
     pub(crate) fn background(self) -> Self {
         Self {
-            draw_list: unsafe { sys::igGetBackgroundDrawList() },
+            draw_list: unsafe { sys::igGetBackgroundDrawListNil() },
             _phantom: PhantomData,
         }
     }
@@ -631,7 +631,7 @@ impl<'ui> BezierCurve<'ui> {
     /// Draw the curve on the window.
     pub fn build(self) {
         unsafe {
-            sys::ImDrawList_AddBezierCurve(
+            sys::ImDrawList_AddBezierCubic(
                 self.draw_list.draw_list,
                 self.pos0.into(),
                 self.cp0.into(),
